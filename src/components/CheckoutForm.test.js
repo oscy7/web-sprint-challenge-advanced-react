@@ -3,7 +3,7 @@ import MutationObserver from 'mutationobserver-shim';
 import { render, screen, waitFor } from "@testing-library/react";
 import CheckoutForm from "./CheckoutForm";
 import userEvent from "@testing-library/user-event";
-//import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom/extend-expect';
 
 // Write up the two tests here and make sure they are testing what the title shows
 
@@ -11,13 +11,13 @@ test("renders without errors", () => {
     render (<CheckoutForm/>)
 });
 
-test("shows success message on submit with form details", () => {
+test("shows success message on submit with form details", async () => {
     render(<CheckoutForm/>)
 
     const firstN = screen.getByLabelText(/first name:/i);
     const lastN = screen.getByLabelText(/last name:/i);
     const myAddress = screen.getByLabelText(/address:/i);
-    const myCity = screen.getByLabelText(/city:/);
+    const myCity = screen.getByLabelText(/city:/i);
     const myState = screen.getByLabelText(/state:/i);
     const myZip = screen.getByLabelText(/zip/i);
 
@@ -26,18 +26,20 @@ test("shows success message on submit with form details", () => {
     userEvent.type(myAddress, 'thisismyaddress');
     userEvent.type(myCity, 'thisismycity');
     userEvent.type(myState, 'thisisstate');
-    userEvent.type(myZip, 'thisismyzip');
+    userEvent.type(myZip, '123456');
 
     const pressButton = screen.getByRole('button');
     userEvent.click(pressButton);
 
     await waitFor(() => {
-        const showFirstN = screen.queryByText(/first name:/i);
-        const showLastN = screen.queryByText(/last name:/i);
-        const showMyAddress = screen.queryByText(/address:/i);
-        const showMyCity = screen.queryByText(/city:/);
-        const showMyState = screen.queryByText(/state:/i);
-        const showMyZip = screen.queryByText(/zip/i);
+        const showFirstN = screen.queryByText(/thisismyname/i);
+        const showLastN = screen.queryByText(/thisismylastname/i);
+        const showMyAddress = screen.queryByText(/thisismyaddress/i);
+        const showMyCity = screen.queryByText(/thisismycity/i);
+        const showMyState = screen.queryByText(/thisisstate/i);
+        const showMyZip = screen.queryByText(/123456/i);
+
+        const successMessage = screen.queryByText(/You have ordered some plants! Woo-hoo!/i);
 
         expect(showFirstN).toBeInTheDocument();
         expect(showLastN).toBeInTheDocument();
@@ -46,5 +48,10 @@ test("shows success message on submit with form details", () => {
         expect(showMyState).toBeInTheDocument();
         expect(showMyZip).toBeInTheDocument();
 
+
+        expect(successMessage).toBeInTheDocument();
+        
+
     })
-});
+    
+ })
